@@ -19,7 +19,7 @@ class BWTTest(TestCase):
  
   def test_alignment(self):
     bwt = BWT(list("banana"))
-    bwt.print_table()
+#    bwt.print_table()
     string = "ana" # This can be a string, because it supports random access and slicing.
 
     self.assertEqual(bwt.L(string), 3)
@@ -38,7 +38,8 @@ class MarkovText(TestCase):
     self.assertEqual(tokens, exp_tok)
 
   def test_banana(self):
-    markov = MarkovModel(list("blah blah blah blah blah blah baabab blah blah"))
+    string = "blah blah blah blah blah blah baabab blah blah"
+    markov = MarkovModel(list(string))
 
     results = {'a': 0, 'b': 0}
 
@@ -46,14 +47,23 @@ class MarkovText(TestCase):
       token = markov.get_n_tokens(list("ba"), 1)[0]
       results[token] += 1
 
-    log_ratio = self.log_ratio(results, 'a', 'b')
-    print "BWT: log ratio is", log_ratio
-    self.assertTrue(abs(log_ratio) < .15) # close enough -- between .86 and 1.16 (e^-0.15, e^0.15)
+    bwt_log_ratio = self.log_ratio(results, 'a', 'b')
+    print "BWT: log ratio is", bwt_log_ratio
 
-#    results = {'a': 0, 'b': 0}
-#    for i in range(1000):
-#      pass
+    results = {'a': 0, 'b': 0}
+    for i in range(1000):
+      start = randrange(len(string))
+      substring = None
+      while (substring != "ba"):
+        substring = string[start:start+2] if start < (len(string) - 2) else (string[-1:]+string[:1] if start == len(string) - 1 else string[-2:]+string[:0])
+        start = (start + 1) % len(string)
+      token = string[start+1]
+      results[token] += 1
 
+    plain_log_ratio = self.log_ratio(results, 'a', 'b')
+    print "PLAIN: log ratio is", plain_log_ratio
+
+    self.assertTrue(abs(bwt_log_ratio)<abs(plain_log_ratio))
 
   def log_ratio(self, results, a, b):
     log_ratio = math.log(results[a]/float(results[b]))

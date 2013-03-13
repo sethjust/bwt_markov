@@ -12,8 +12,6 @@ class MarkovModel:
     '''
     Returns up to n tokens that follow the list of tokens given in context in
     the source string, or None if no such tokens exist.
-
-    TODO: implement
     '''
     indices = self.bwt.get_start_indices(context)
 
